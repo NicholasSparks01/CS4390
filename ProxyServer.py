@@ -30,9 +30,9 @@ if len(sys.argv) > 1:
 
 # Initialize the server
 config = {
-    'Proxy_Client': '127.0.0.1',    # Replace with your actual IP if needed
+    'Proxy_Client': '192.168.68.68',    # Replace with your actual IP if needed
     'MAX_REQUEST_LEN' : 4096,       # Maximum request length
-    'CONNECTION_TIMEOUT' : 5        # Number of attempts to connect
+    'CONNECTION_TIMEOUT' : 30        # Number of attempts to connect
     }  
 tcpSerSock = initialize_server(config)
 
@@ -46,16 +46,23 @@ while True:
     try: 
         # get the request from browser
         request = tcpCliSock.recv(config['MAX_REQUEST_LEN']) #set max request length to 4096
+        print("DEF:", request.decode())
 
-        # Parse the first line
+        # Get Domain name
         first_line = request.split(b'\n')[0]
-
-        # Get URL
         url = first_line.split(b' ')[1]
-        http = "http://"
+
         # Parse the URL and extract hostname
-        print (url)
         hostname = url.decode()[1:]
+
+
+        # Parsing
+        new_request = request[:4].decode() + "http://" + request[5:].decode()
+        print("NEW:", new_request)
+        new_request = new_request.encode()
+        print("RESULT")
+
+
 
         print("Hostname:", hostname)        
             
@@ -63,21 +70,26 @@ while True:
         s = socket(AF_INET, SOCK_STREAM)
         s.settimeout(config['CONNECTION_TIMEOUT'])
 
+
         try:
-            print(request)
-            s.connect(("httpforever.com", 80))
-            s.sendall(request)
+            s.connect((hostname, 80))
+            print("SENDING REQUEST")
+            s.sendall(new_request)
 
             # Receive the response from the destination server
             response = b""
             while True:
                 data = s.recv(4096)
+                print("")
+                print("")
+                print(data)
                 # Continue until data is empty
                 if (len(data) > 0):
                     tcpCliSock.send(data)
+                    print(data)
                 else:
                     break
-
+                
         except OSError as e:
             print("Socket error:", e)
 
