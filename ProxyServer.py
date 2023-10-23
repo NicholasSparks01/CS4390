@@ -12,7 +12,7 @@ def initialize_server(config):
     # Bind socket to public local host and port
     tcpSerSock.bind((config['Proxy_Client'], 8787))
 
-    tcpSerSock.listen(1)  # Limit to one connection at a time
+    tcpSerSock.listen(10)  # Limit to one connection at a time
 
     # Shutdown on Ctrl+C
     def shutdown_server(sig, frame):
@@ -35,7 +35,7 @@ config = {
     'CONNECTION_TIMEOUT' : 30        # Number of attempts to connect
     }  
 tcpSerSock = initialize_server(config)
-
+i = 0
 while True:
     # Accept a connection (blocking operation)
     print('Ready to serve...')
@@ -46,25 +46,30 @@ while True:
     try: 
         # get the request from browser
         request = tcpCliSock.recv(config['MAX_REQUEST_LEN']) #set max request length to 4096
-        print("DEF:", request.decode())
+
+        if not request:
+            continue
+
+        print("Received Request:", request.decode())
 
         # Get Domain name
         first_line = request.split(b'\n')[0]
         url = first_line.split(b' ')[1]
 
-        # Parse the URL and extract hostname
-        hostname = url.decode()[1:]
-
-
+        # Parse the URL and extract hostname  
+        if (i == 0):
+            hostname = url.decode()[1:]
+        print("Hostname:", hostname)        
+        
         # Parsing
-        new_request = request[:4].decode() + "http://" + request[5:].decode()
+        if (i == 0):
+            new_request = request[:4].decode() + "http://" + request[5:].decode()
+        else:
+            new_request = request[:4].decode() + "http://" + hostname + "/" + request[5:].decode()
+
         print("NEW:", new_request)
         new_request = new_request.encode()
-        print("RESULT")
 
-
-
-        print("Hostname:", hostname)        
             
         # Handle the request to destination server
         s = socket(AF_INET, SOCK_STREAM)
@@ -102,4 +107,5 @@ while True:
 
     except OSError as e:
         print("Socket error:", e)
+    i = i + 1
 
