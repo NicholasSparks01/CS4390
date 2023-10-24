@@ -54,7 +54,7 @@ if len(sys.argv) > 1:
 config = {
     'Proxy_Client': local_ip,    # <<<< REPLACE WITH ACTUAL IP ADDRESS if script doesn't work<<<<<
     'MAX_REQUEST_LEN' : 4096,       # Maximum request length
-    'CONNECTION_TIMEOUT' : 30        # Number of attempts to connect
+    'CONNECTION_TIMEOUT' : 5       # Number of attempts to connect
     }  
 tcpSerSock = initialize_server(config)
 i = 0
