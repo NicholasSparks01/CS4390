@@ -2,6 +2,10 @@ from socket import *
 import sys
 import signal
 
+if len(sys.argv) > 1:
+    print("Usage: python3 ProxyServer.py")
+    sys.exit(2)
+
 def get_local_ip_address():
     try:
         # Create a socket object to get the local IP address
@@ -21,10 +25,11 @@ def get_local_ip_address():
     except socket.error:
         print("Could not retrieve local IP address")
         return -1
+
 local_ip = get_local_ip_address()
-print("Local IP Address:", local_ip)
 
 def initialize_server(config):
+    print(f"Initalizing server: IP: {local_ip}  Port: 8787")
     # Create server socket, bind to port, and listen
     tcpSerSock = socket(AF_INET, SOCK_STREAM)
 
@@ -46,13 +51,10 @@ def initialize_server(config):
 
     return tcpSerSock
 
-if len(sys.argv) > 1:
-    print("Usage: python3 ProxyServer.py")
-    sys.exit(2)
 
 # Initialize the server
 config = {
-    'Proxy_Client': local_ip,    # <<<< REPLACE WITH ACTUAL IP ADDRESS if script doesn't work<<<<<
+    'Proxy_Client': local_ip,    # local_ip <<<< REPLACE WITH ACTUAL IP ADDRESS if script doesn't work<<<<<
     'MAX_REQUEST_LEN' : 4096,       # Maximum request length
     'CONNECTION_TIMEOUT' : 5       # Number of attempts to connect
     }  
@@ -106,7 +108,9 @@ while True:
 
         try:
             s.connect((hostname, 80))
-            print("SENDING REQUEST TO DOMAIN....")
+            print("+-+-+-+-+-SENDING REQUEST TO DOMAIN+-+-+-+-+-")
+            print(new_request.decode())
+            print("+-+-+-+-+-END REQUEST TO DOMAIN+-+-+-+-+-")
             s.sendall(new_request)
 
             # Receive the response from the destination server
@@ -117,14 +121,14 @@ while True:
                 print("")
                 print("+-+-+-+-+-RESPONSE FROM DOMAIN+-+-+-+-+-")
                 print(data)
-                print("+-+-+-+-+-END OF DOMAIN RESPONSE+-+-+-+-+-")
                 # Continue until data is empty
                 if (len(data) > 0):
                     tcpCliSock.send(data)
                     print(data)
                 else:
                     break
-                
+                print("+-+-+-+-+-END OF DOMAIN RESPONSE+-+-+-+-+-")
+
         except OSError as e:
             print("Socket error:", e)
 
