@@ -2,6 +2,7 @@ from socket import *
 import sys
 
     # Long message for testing
+    # This is compared against the received data to simulate a checksum and corruption handling
 long_msg = """
     If debugging is the process of removing software bugs,
     then programming must be the process of putting them in.
@@ -32,13 +33,15 @@ def initialize_server():
     while True:
         data, client_address = server_socket.recvfrom(1536)
         received_sequence_number, received_chunk = data.decode().split(':')
-
+        # Check sequence # is expected and not corrupt
         if int(received_sequence_number) == expected_sequence_number and received_chunk in long_msg:
             print(f"Received data with sequence number {received_sequence_number}:\n{received_chunk}")
             expected_sequence_number += 1  # Increment sequence number
             received_data += received_chunk
 
             # Simulate sending an ACK
+            # We can get away with using 0, 1, 2, 3 for ACKS since all packets will have the same size
+            # Otherwise, we would need to use the size of the data received to figure the ACK#
             ack_packet = f"{received_sequence_number}:ACK"
             server_socket.sendto(ack_packet.encode(), client_address)
 

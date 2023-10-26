@@ -41,7 +41,7 @@ def rdt_send(client_socket, data, server_name, server_port, sequence_number):
         client_socket.sendto(packet.encode(), (server_name, server_port))
 
         attempts = 0
-        client_socket.settimeout(5)  # Set the timeout outside the loop
+        client_socket.settimeout(1)  # Changed timeout to 1 second for faster testing
 
         while attempts < 5:
             try:
