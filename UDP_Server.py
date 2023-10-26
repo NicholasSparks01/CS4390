@@ -34,7 +34,7 @@ def initialize_server():
         received_sequence_number, received_chunk = data.decode().split(':')
 
         if int(received_sequence_number) == expected_sequence_number and received_chunk in long_msg:
-            print(f"Received data with sequence number {received_sequence_number}: {received_chunk}")
+            print(f"Received data with sequence number {received_sequence_number}:\n{received_chunk}")
             expected_sequence_number += 1  # Increment sequence number
             received_data += received_chunk
 
