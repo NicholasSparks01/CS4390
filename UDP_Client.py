@@ -1,4 +1,5 @@
 from socket import *
+import time
 
 def initialize_client():
     server_name = 'localhost'
@@ -40,8 +41,9 @@ def rdt_send(client_socket, data, server_name, server_port, sequence_number):
         # Send the packet to the server
         client_socket.sendto(packet.encode(), (server_name, server_port))
 
+        TIMEOUT_INTERVAL = 1
         attempts = 0
-        client_socket.settimeout(1)  # Changed timeout to 1 second for faster testing
+        client_socket.settimeout(TIMEOUT_INTERVAL)  # Changed timeout to 1 second for faster testing
 
         while attempts < 5:
             try:
@@ -54,6 +56,8 @@ def rdt_send(client_socket, data, server_name, server_port, sequence_number):
                     print(f"Received ACK for sequence number {ack}")
                     sequence_number += 1  # Increment sequence number
                     break  # Exit the loop upon successful ACK
+                else:
+                    time.sleep(TIMEOUT_INTERVAL)
             except timeout:
                 # Handle timeout (e.g., retransmit the packet)
                 attempts += 1
